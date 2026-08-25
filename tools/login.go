@@ -45,6 +45,8 @@ type Deps struct {
 	GetClient func() (*appie.Client, error)
 	// ReloadClient recreates the client from the tokens file.
 	ReloadClient func() (*appie.Client, error)
+	// GetAnonymousClient creates a short-lived client using an anonymous token.
+	GetAnonymousClient func(ctx context.Context) (*appie.Client, error)
 	// IsAuthenticated checks whether valid tokens are on disk.
 	IsAuthenticated func() bool
 	// StartOAuthFlow starts the proxy and returns (loginURL, doneChan, err).

@@ -85,8 +85,9 @@ func main() {
 		RemoteMode:    *remote,
 		ServerVersion: version,
 		AppieVersion:  appieVersion(),
-		GetClient:    GetClient,
-		ReloadClient: ReloadClient,
+		GetClient:          GetClient,
+		ReloadClient:       ReloadClient,
+		GetAnonymousClient: GetAnonymousClient,
 		IsAuthenticated: func() bool {
 			return IsAuthenticated(tokensPath)
 		},
