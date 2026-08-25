@@ -205,6 +205,7 @@ func registerGetBonusOffers(s *server.MCPServer, deps Deps) {
 		mcp.WithTitleAnnotation("Albert Heijn: Bonus Offers"),
 		mcp.WithDescription(
 			"Get current Albert Heijn bonus/promotional offers. "+
+				"Works without login (uses anonymous access). "+
 				"Use this (not ah_search_products) when the user asks what is on bonus/sale/discount. "+
 				"Supports optional keyword filter to find e.g. cheese on bonus: set query='kaas'. "+
 				"Group deals (e.g. '2+1 gratis', 'Alle yoghurt 25% korting') have id=0 and a non-empty bonus_segment_id — "+
@@ -219,15 +220,22 @@ func registerGetBonusOffers(s *server.MCPServer, deps Deps) {
 		),
 	)
 	s.AddTool(tool, func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		if !deps.IsAuthenticated() {
-			return notAuthResult(), nil
-		}
-		if err := refreshTokens(ctx, deps); err != nil {
-			return errResult(fmt.Sprintf("Token refresh failed: %v", err)), nil
-		}
-		c, err := deps.GetClient()
-		if err != nil {
-			return errResult(fmt.Sprintf("Client error: %v", err)), nil
+		var c *appie.Client
+		if deps.IsAuthenticated() {
+			if err := refreshTokens(ctx, deps); err != nil {
+				return errResult(fmt.Sprintf("Token refresh failed: %v", err)), nil
+			}
+			var err error
+			c, err = deps.GetClient()
+			if err != nil {
+				return errResult(fmt.Sprintf("Client error: %v", err)), nil
+			}
+		} else {
+			var err error
+			c, err = deps.GetAnonymousClient(ctx)
+			if err != nil {
+				return errResult(fmt.Sprintf("Failed to get anonymous token: %v. Please log in for a more reliable experience.", err)), nil
+			}
 		}
 
 		limit := req.GetInt("limit", 20)

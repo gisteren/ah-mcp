@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -22,6 +23,17 @@ func GetClient() (*appie.Client, error) {
 		return c, nil
 	}
 	return ReloadClient()
+}
+
+// GetAnonymousClient creates a short-lived appie client authenticated with an
+// anonymous token. Useful for endpoints that do not require a user login, such
+// as bonus offers, product search, and product details.
+func GetAnonymousClient(ctx context.Context) (*appie.Client, error) {
+	c := appie.New()
+	if err := c.GetAnonymousToken(ctx); err != nil {
+		return nil, fmt.Errorf("get anonymous token: %w", err)
+	}
+	return c, nil
 }
 
 // ReloadClient creates a fresh appie client loaded from the tokens file.
