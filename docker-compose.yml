@@ -1,0 +1,21 @@
+services:
+  ah-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ah-mcp
+    ports:
+      - "3000:3000"
+      - "9876:9876"
+    env_file:
+      - .env
+    environment:
+      AH_MCP_PORT: "3000"
+      AH_CALLBACK_PORT: "9876"
+      AH_TOKENS_PATH: /home/app/.config/ah-mcp/tokens.json
+    volumes:
+      - ah-mcp-data:/home/app/.config/ah-mcp
+    restart: unless-stopped
+
+volumes:
+  ah-mcp-data:
